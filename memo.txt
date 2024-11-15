@@ -1,0 +1,90 @@
+dotnet new winforms -o MyBlazorHybridApp
+cd MyBlazorHybridApp
+dotnet add package Microsoft.AspNetCore.Components.WebView.WindowsForms
+
+
+
+
+using Microsoft.AspNetCore.Components.WebView.WindowsForms;
+using System.Windows.Forms;
+
+namespace MyBlazorHybridApp
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+
+            var blazorWebView = new BlazorWebView
+            {
+                Dock = DockStyle.Fill,
+                HostPage = "wwwroot\\index.html"
+            };
+            blazorWebView.Services = new ServiceCollection()
+                .AddBlazorWebView()// http client など、サービス登録をまとめた拡張メソッド。あると便利なこともありそう
+                .BuildServiceProvider();// サービスプロバイダをビルドしておけば、コンストラクタインジェクションは使える
+            blazorWebView.RootComponents.Add<App>("#app");
+
+            this.Controls.Add(blazorWebView);
+        }
+    }
+}
+public partial class Form1 : Form
+{
+    public Form1()
+    {
+        InitializeComponent();
+
+        var blazorWebView = new BlazorWebView
+        {
+            Dock = DockStyle.Fill,
+            HostPage = "wwwroot\\index.html"
+        };
+        blazorWebView.RootComponents.Add<App>("#app");
+
+        this.Controls.Add(blazorWebView);
+    }
+}
+
+
+
+wwwroot/index.html
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Blazor Hybrid App</title>
+</head>
+<body>
+    <app>Loading...</app>
+    <script src="_framework/blazor.webview.js"></script>
+</body>
+</html>
+
+
+
+App.razor
+
+<Router AppAssembly="@typeof(App).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+    </Found>
+    <NotFound>
+        <LayoutView Layout="@typeof(MainLayout)">
+            <p>Sorry, there's nothing at this address.</p>
+        </LayoutView>
+    </NotFound>
+</Router>
+
+
+
+xxxx.razor
+
+@page "/"
+
+<h3>Hello from Blazor in a WinForms app!</h3>
+
+
